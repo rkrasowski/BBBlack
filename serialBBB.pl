@@ -11,49 +11,54 @@ use Device::SerialPort;
 #																		#
 #################################################################################################################################################
 
-#set UART1 
-# check if SLOT exist if no, crate it
-
-my $SLOT1 = checkSlots(1);
-if ($SLOT1 != 7)
-	{
-		print "Slot ttyO1 doesn't exist, will create it !!\n";		
-		`echo ttyO1_armhf.com > /sys/devices/bone_capemgr.9/slots`;
-	}
-print "\nUART1 Tx set done....PIN (9_24)\n";
-print "UART1 Rx set done....PIN (9_26)\n";
-
-
-#set UART2
-my $SLOT2 = checkSlots(2);
-if ($SLOT2 != 7)
- 	{
-                print "Slot ttyO2 doesn't exist, will create it !!\n";
-		`echo ttyO2_armhf.com > /sys/devices/bone_capemgr.9/slots`;
-	}
-print "\nUART2 Tx set done....PIN (9_21)\n";
-print "UART2 Rx set done....PIN (9_22)\n";
-
-
-#set UART4 
-my $SLOT4 = checkSlots(4);
-if ($SLOT4 != 7)
-        {
-		print "Slot ttyO4 doesn't exist, will create it !!\n";
-		`echo ttyO4_armhf.com > /sys/devices/bone_capemgr.9/slots`;
-	}
-print "\nUART4 Tx set done....PIN (9_13)\n";
-print "UART4 Rx set done....PIN (9_11)\n";
-
 
 
 
 ###########################################################################################
-
-
-uart1();
-
+#uart0();
+uart4();
+#uart2();
+#uart1();
+#uart5();
 ########################################
+
+sub uart0 {
+# Activate serial connection for UART1, ttyO1:
+my $PORT0 = "/dev/ttyO0";
+my $serialData0;
+
+print "Starting UART0....\n";
+
+my $ob0 = Device::SerialPort->new($PORT0) || die "Can't Open $PORT0: $!";
+
+$ob0->baudrate(9600) || die "failed setting baudrate";
+$ob0->parity("none") || die "failed setting parity";
+$ob0->databits(8) || die "failed setting databits";
+$ob0->handshake("none") || die "failed setting handshake";
+$ob0->write_settings || die "no settings";
+$| = 1;
+
+open( DEV, "<$PORT0" ) || die "Cannot open $PORT0: $_";
+
+while (1)
+        {
+                sleep(1);
+                my $count_out = $ob0->write("Serial port test in UART0\n");
+        }
+
+while ( $serialData0 = <DEV> )
+        {
+                print"UART0: $serialData0\n";
+        }
+
+undef $ob0;
+}
+
+
+
+
+
+
 sub uart1 {
 # Activate serial connection for UART1, ttyO1:
 my $PORT1 = "/dev/ttyO1";
@@ -118,7 +123,7 @@ undef $ob2;
 
 
 
-sub uatr4 {
+sub uart4 {
 # Activate serial connection for UART4, ttyO4:
 my $PORT4 = "/dev/ttyO4"; 
 my $serialData4;
@@ -148,6 +153,45 @@ while ( $serialData4 = <DEV> )
 undef $ob4;
 
 }
+
+
+
+
+sub uart5 {
+# Activate serial connection for UART5, ttyO5:
+
+print "Starting UART5\n";
+
+my $PORT5 = "/dev/ttyO5";
+my $serialData5;
+
+my $ob5 = Device::SerialPort->new($PORT5) || die "Can't Open $PORT5: $!";
+
+$ob5->baudrate(9600) || die "failed setting baudrate";
+$ob5->parity("none") || die "failed setting parity";
+$ob5->databits(8) || die "failed setting databits";
+$ob5->handshake("none") || die "failed setting handshake";
+$ob5->write_settings || die "no settings";
+$| = 1;
+
+open( DEV, "<$PORT5" ) || die "Cannot open $PORT5: $_";
+
+while (1)
+        {
+                sleep(1);
+                my $count_out = $ob5->write("Serial port test on UART5\n");
+        }
+
+while ( $serialData5 = <DEV> )
+        {
+                print"UART5: $serialData5\n";
+        }
+
+undef $ob5;
+
+}
+
+
 
 
 ################################################## Subroutines #############################
